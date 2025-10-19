@@ -43,7 +43,7 @@
                         <transformers>
                             <transformer implementation=
                                                  "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                <mainClass>com.mipt.angelikaliber.Application</mainClass>
+                                <mainClass>com.mipt.angelikaliber.MainClass</mainClass>
                             </transformer>
                         </transformers>
                     </configuration>
