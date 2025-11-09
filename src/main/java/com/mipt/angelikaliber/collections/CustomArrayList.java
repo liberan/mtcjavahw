@@ -1,6 +1,9 @@
 package com.mipt.angelikaliber.collections;
 
-public class CustomArrayList<A extends  Object> implements CustomList<A> {
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class CustomArrayList<A extends  Object> implements CustomList<A>, Iterable<A> {
     private Object[] data;
     private int capacity;
 
@@ -20,6 +23,11 @@ public class CustomArrayList<A extends  Object> implements CustomList<A> {
         }
         this.data[this.capacity] = element;
         this.capacity++;
+    }
+
+    @Override
+    public Iterator<A> iterator() {
+        return new CustomIterator<A>(this);
     }
 
     public A get(int index) {
@@ -75,6 +83,35 @@ public class CustomArrayList<A extends  Object> implements CustomList<A> {
         System.out.println(data.size());
         System.out.println(data.isEmpty());
         System.out.println(data.get(4));
+        Iterator<String> i = data.iterator();
+        System.out.println(data);
+        System.out.println("Iterator");
+        while (i.hasNext()){
+            System.out.println(i.next());
+        }
+    }
+
+    private  class CustomIterator<A> implements Iterator{
+        public CustomArrayList<A> src;
+        public int index;
+
+        public CustomIterator(CustomArrayList<A> src) {
+            this.src = src;
+            this.index = - 1;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return (index + 1 < src.size());
+        }
+
+        @Override
+        public A next() {
+            if (this.hasNext()){
+                return src.get(++index);
+            }
+            throw new NoSuchElementException();
+        }
     }
 }
 
