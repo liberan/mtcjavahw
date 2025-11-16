@@ -16,7 +16,7 @@ public class CustomArrayList<A extends  Object> implements CustomList<A>, Iterab
     public void add(A element) {
         if (this.capacity == this.data.length) {
             Object[] data2 = new Object[(int)(this.capacity * 1.5)];
-            for (int i =0; i < this.capacity; i++) {
+            for (int i = 0; i < this.capacity; i++) {
                 data2[i] = this.data[i];
             }
             this.data = data2;
