@@ -1,0 +1,14 @@
+com/mipt/angelikaliber/config/ScopeConfig.class
+com/mipt/angelikaliber/controller/TaskController.class
+com/mipt/angelikaliber/service/PrototypeScopedBean.class
+com/mipt/angelikaliber/AngelikaliberApplication.class
+com/mipt/angelikaliber/service/RequestScopedBean.class
+com/mipt/angelikaliber/repository/InMemoryTaskRepository.class
+com/mipt/angelikaliber/model/Task.class
+com/mipt/angelikaliber/repository/TaskRepository.class
+com/mipt/angelikaliber/aspect/TaskLifecycleProcessor.class
+com/mipt/angelikaliber/service/TaskStatisticsService.class
+com/mipt/angelikaliber/service/TaskService.class
+com/mipt/angelikaliber/config/RepositoryConfig.class
+com/mipt/angelikaliber/repository/StubTaskRepository.class
+com/mipt/angelikaliber/aspect/LoggingAspect.class
