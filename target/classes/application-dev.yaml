@@ -1,0 +1,11 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    com.mipt.angelikaliber: DEBUG
+    org.springframework.web: DEBUG
+
+app:
+  name: To-Do List Manager (dev)

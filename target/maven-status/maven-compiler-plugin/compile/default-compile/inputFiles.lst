@@ -1,0 +1,14 @@
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/AngelikaliberApplication.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/aspect/LoggingAspect.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/aspect/TaskLifecycleProcessor.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/config/RepositoryConfig.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/config/ScopeConfig.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/controller/TaskController.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/model/Task.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/repository/InMemoryTaskRepository.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/repository/StubTaskRepository.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/repository/TaskRepository.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/service/PrototypeScopedBean.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/service/RequestScopedBean.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/service/TaskService.java
+/Users/aliberscomp/IdeaProjects/mtcjavahw/src/main/java/com/mipt/angelikaliber/service/TaskStatisticsService.java
