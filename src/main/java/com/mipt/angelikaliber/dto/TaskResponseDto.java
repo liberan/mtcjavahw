@@ -1,12 +1,14 @@
-package com.mipt.angelikaliber.model;
+package com.mipt.angelikaliber.dto;
+
+import com.mipt.angelikaliber.model.Priority;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
-public class Task {
+@Schema(description = "Task representation returned to clients")
+public class TaskResponseDto {
 
     private Long id;
     private String title;
@@ -15,17 +17,7 @@ public class Task {
     private LocalDateTime createdAt;
     private LocalDate dueDate;
     private Priority priority;
-    private Set<String> tags = new HashSet<>();
-
-    public Task() {
-    }
-
-    public Task(Long id, String title, String description, boolean completed) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.completed = completed;
-    }
+    private Set<String> tags;
 
     public Long getId() {
         return id;
@@ -88,25 +80,6 @@ public class Task {
     }
 
     public void setTags(Set<String> tags) {
-        this.tags = tags == null ? new HashSet<>() : tags;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Task task)) {
-            return false;
-        }
-        return completed == task.completed
-                && Objects.equals(id, task.id)
-                && Objects.equals(title, task.title)
-                && Objects.equals(description, task.description);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, title, description, completed);
+        this.tags = tags;
     }
 }

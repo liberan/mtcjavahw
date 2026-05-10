@@ -1,14 +1,25 @@
 package com.mipt.angelikaliber.controller;
 
+import com.mipt.angelikaliber.dto.TaskCreateDto;
+import com.mipt.angelikaliber.dto.TaskResponseDto;
+import com.mipt.angelikaliber.dto.TaskUpdateDto;
+import com.mipt.angelikaliber.mapper.TaskMapper;
 import com.mipt.angelikaliber.model.Task;
 import com.mipt.angelikaliber.service.PrototypeScopedBean;
 import com.mipt.angelikaliber.service.RequestScopedBean;
 import com.mipt.angelikaliber.service.TaskService;
 import com.mipt.angelikaliber.service.TaskStatisticsService;
+import com.mipt.angelikaliber.validation.OnCreate;
+import com.mipt.angelikaliber.validation.OnUpdate;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,71 +34,84 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tasks")
+@Tag(name = "Tasks", description = "CRUD over the to-do list")
 public class TaskController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskController.class);
 
     private final TaskService taskService;
+    private final TaskMapper taskMapper;
     private final TaskStatisticsService statisticsService;
     private final ObjectProvider<RequestScopedBean> requestScopedBeanProvider;
     private final ObjectProvider<PrototypeScopedBean> prototypeScopedBeanProvider;
 
     public TaskController(TaskService taskService,
+                          TaskMapper taskMapper,
                           TaskStatisticsService statisticsService,
                           ObjectProvider<RequestScopedBean> requestScopedBeanProvider,
                           ObjectProvider<PrototypeScopedBean> prototypeScopedBeanProvider) {
         this.taskService = taskService;
+        this.taskMapper = taskMapper;
         this.statisticsService = statisticsService;
         this.requestScopedBeanProvider = requestScopedBeanProvider;
         this.prototypeScopedBeanProvider = prototypeScopedBeanProvider;
     }
 
+    @Operation(summary = "List all tasks")
+    @ApiResponse(responseCode = "200", description = "List of tasks")
     @GetMapping
-    public List<Task> findAll() {
-        return taskService.findAll();
+    public ResponseEntity<List<TaskResponseDto>> findAll() {
+        List<Task> tasks = taskService.findAll();
+        List<TaskResponseDto> body = tasks.stream().map(taskMapper::toResponseDto).toList();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", String.valueOf(tasks.size()));
+        return ResponseEntity.ok().headers(headers).body(body);
     }
 
+    @Operation(summary = "Get a task by id")
     @GetMapping("/{id}")
-    public ResponseEntity<Task> findById(@PathVariable String id) {
-        return taskService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<TaskResponseDto> findById(@PathVariable Long id) {
+        Task task = taskService.getById(id);
+        return ResponseEntity.ok(taskMapper.toResponseDto(task));
     }
 
+    @Operation(summary = "Create a new task")
+    @ApiResponse(responseCode = "201", description = "Task created")
     @PostMapping
-    public ResponseEntity<Task> create(@RequestBody Task task) {
-        if (task == null || task.getTitle() == null || task.getTitle().isBlank()) {
-            return ResponseEntity.badRequest().build();
-        }
-        Task created = taskService.create(task);
-        return ResponseEntity.status(201).body(created);
+    public ResponseEntity<TaskResponseDto> create(
+            @Validated(OnCreate.class) @RequestBody TaskCreateDto dto) {
+        Task created = taskService.create(taskMapper.toEntity(dto));
+        return ResponseEntity.status(201).body(taskMapper.toResponseDto(created));
     }
 
+    @Operation(summary = "Partially update a task")
     @PutMapping("/{id}")
-    public ResponseEntity<Task> update(@PathVariable String id, @RequestBody Task task) {
-        if (task == null || task.getTitle() == null || task.getTitle().isBlank()) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<TaskResponseDto> update(@PathVariable Long id,
+            @Validated(OnUpdate.class) @RequestBody TaskUpdateDto dto) {
+        Task existing = taskService.getById(id);
+        Task patched = taskMapper.updateEntity(dto, existing);
+        if (dto.getCompleted() != null) {
+            patched.setCompleted(dto.getCompleted());
         }
-        return taskService.update(id, task)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Task updated = taskService.update(id, patched);
+        return ResponseEntity.ok(taskMapper.toResponseDto(updated));
     }
 
+    @Operation(summary = "Delete a task")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
-        return taskService.delete(id)
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        taskService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/stats")
-    public Map<String, Object> stats() {
+    public ResponseEntity<Map<String, Object>> stats() {
         RequestScopedBean requestBean = requestScopedBeanProvider.getObject();
         PrototypeScopedBean prototypeFirst = prototypeScopedBeanProvider.getObject();
         PrototypeScopedBean prototypeSecond = prototypeScopedBeanProvider.getObject();
         LOGGER.debug("stats: request-id={} primary-source={}",
                 requestBean.getRequestId(), statisticsService.describePrimarySource());
-        return Map.of(
+        Map<String, Object> body = Map.of(
                 "appName", taskService.getAppName(),
                 "appVersion", taskService.getAppVersion(),
                 "cacheSize", taskService.cacheSize(),
@@ -98,5 +122,6 @@ public class TaskController {
                 "requestStartedAt", requestBean.getStartedAt().toString(),
                 "prototypeIds", List.of(prototypeFirst.getTaskId(), prototypeSecond.getTaskId())
         );
+        return ResponseEntity.ok(body);
     }
 }

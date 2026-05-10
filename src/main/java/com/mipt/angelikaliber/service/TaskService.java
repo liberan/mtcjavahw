@@ -1,5 +1,6 @@
 package com.mipt.angelikaliber.service;
 
+import com.mipt.angelikaliber.exception.TaskNotFoundException;
 import com.mipt.angelikaliber.model.Task;
 import com.mipt.angelikaliber.repository.TaskRepository;
 import jakarta.annotation.PostConstruct;
@@ -23,7 +24,7 @@ public class TaskService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
 
     private final TaskRepository taskRepository;
-    private final Map<String, Task> taskCache = new ConcurrentHashMap<>();
+    private final Map<Long, Task> taskCache = new ConcurrentHashMap<>();
 
     @Value("${app.name:to-do-list-manager}")
     private String appName;
@@ -80,8 +81,13 @@ public class TaskService {
         return taskRepository.read();
     }
 
-    public Optional<Task> findById(String id) {
+    public Optional<Task> findById(Long id) {
         return taskRepository.read(id);
+    }
+
+    public Task getById(Long id) {
+        return taskRepository.read(id)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + id));
     }
 
     public Task create(Task task) {
@@ -91,18 +97,21 @@ public class TaskService {
         return created;
     }
 
-    public Optional<Task> update(String id, Task incoming) {
-        Optional<Task> updated = taskRepository.update(id, incoming);
-        updated.ifPresent(task -> taskCache.put(task.getId(), task));
-        return updated;
+    public Task update(Long id, Task incoming) {
+        return taskRepository.update(id, incoming)
+                .map(task -> {
+                    taskCache.put(task.getId(), task);
+                    return task;
+                })
+                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + id));
     }
 
-    public boolean delete(String id) {
+    public void delete(Long id) {
         boolean removed = taskRepository.delete(id);
-        if (removed) {
-            taskCache.remove(id);
+        if (!removed) {
+            throw new TaskNotFoundException("Task not found: " + id);
         }
-        return removed;
+        taskCache.remove(id);
     }
 
     public int cacheSize() {
