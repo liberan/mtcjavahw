@@ -11,9 +11,9 @@ public interface TaskRepository {
 
     List<Task> read();
 
-    Optional<Task> read(String id);
+    Optional<Task> read(Long id);
 
-    Optional<Task> update(String id, Task task);
+    Optional<Task> update(Long id, Task task);
 
-    boolean delete(String id);
+    boolean delete(Long id);
 }
