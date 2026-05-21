@@ -1,6 +1,7 @@
 package com.mipt.angelikaliber.service;
 
 import com.mipt.angelikaliber.exception.AttachmentNotFoundException;
+import com.mipt.angelikaliber.model.Task;
 import com.mipt.angelikaliber.model.TaskAttachment;
 import com.mipt.angelikaliber.repository.TaskAttachmentRepository;
 import jakarta.annotation.PostConstruct;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -41,8 +43,9 @@ public class AttachmentService {
         Files.createDirectories(storageRoot);
     }
 
+    @Transactional
     public TaskAttachment storeAttachment(Long taskId, MultipartFile file) throws IOException {
-        taskService.getById(taskId);
+        Task task = taskService.getById(taskId);
 
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file is empty");
@@ -62,7 +65,7 @@ public class AttachmentService {
         }
 
         TaskAttachment attachment = new TaskAttachment();
-        attachment.setTaskId(taskId);
+        attachment.setTask(task);
         attachment.setFileName(original);
         attachment.setStoredFileName(stored);
         attachment.setContentType(file.getContentType());
@@ -71,16 +74,19 @@ public class AttachmentService {
         return repository.save(attachment);
     }
 
+    @Transactional(readOnly = true)
     public TaskAttachment getAttachment(Long attachmentId) {
         return repository.findById(attachmentId)
                 .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found: " + attachmentId));
     }
 
+    @Transactional(readOnly = true)
     public List<TaskAttachment> getByTask(Long taskId) {
         taskService.getById(taskId);
         return repository.findByTaskId(taskId);
     }
 
+    @Transactional(readOnly = true)
     public Resource loadAsResource(Long attachmentId) {
         TaskAttachment attachment = getAttachment(attachmentId);
         Path file = storageRoot.resolve(attachment.getStoredFileName());
@@ -95,6 +101,7 @@ public class AttachmentService {
         }
     }
 
+    @Transactional
     public void deleteAttachment(Long attachmentId) {
         TaskAttachment attachment = getAttachment(attachmentId);
         Path file = storageRoot.resolve(attachment.getStoredFileName());
@@ -102,6 +109,6 @@ public class AttachmentService {
             Files.deleteIfExists(file);
         } catch (IOException ignored) {
         }
-        repository.delete(attachmentId);
+        repository.deleteById(attachmentId);
     }
 }

@@ -1,2 +1,9 @@
+com/mipt/angelikaliber/mapper/TaskMapperTest.class
+com/mipt/angelikaliber/service/TaskStatisticsJdbcServiceTest.class
+com/mipt/angelikaliber/controller/PreferencesControllerTest.class
+com/mipt/angelikaliber/repository/TaskRepositoryTest.class
 com/mipt/angelikaliber/AngelikaliberApplicationTests.class
+com/mipt/angelikaliber/controller/FavoritesControllerTest.class
+com/mipt/angelikaliber/controller/AttachmentControllerTest.class
+com/mipt/angelikaliber/service/TaskServiceTransactionTest.class
 com/mipt/angelikaliber/controller/TaskControllerTest.class

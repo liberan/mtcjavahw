@@ -1,21 +1,68 @@
 package com.mipt.angelikaliber.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import jakarta.persistence.EntityListeners;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@Table(name = "tasks")
+@EntityListeners(AuditingEntityListener.class)
 public class Task {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "title", nullable = false, length = 100)
     private String title;
+
+    @Column(name = "description", length = 500)
     private String description;
+
+    @Column(name = "completed", nullable = false)
     private boolean completed;
+
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "due_date")
     private LocalDate dueDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "priority", length = 16)
     private Priority priority;
-    private Set<String> tags = new HashSet<>();
+
+    @Column(name = "tags", length = 500)
+    private String tagsRaw;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TaskAttachment> attachments = new ArrayList<>();
 
     public Task() {
     }
@@ -67,6 +114,14 @@ public class Task {
         this.createdAt = createdAt;
     }
 
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public LocalDate getDueDate() {
         return dueDate;
     }
@@ -84,11 +139,41 @@ public class Task {
     }
 
     public Set<String> getTags() {
-        return tags;
+        Set<String> result = new HashSet<>();
+        if (tagsRaw == null || tagsRaw.isBlank()) {
+            return result;
+        }
+        for (String tag : tagsRaw.split(",")) {
+            String trimmed = tag.trim();
+            if (!trimmed.isEmpty()) {
+                result.add(trimmed);
+            }
+        }
+        return result;
     }
 
     public void setTags(Set<String> tags) {
-        this.tags = tags == null ? new HashSet<>() : tags;
+        if (tags == null || tags.isEmpty()) {
+            this.tagsRaw = null;
+            return;
+        }
+        this.tagsRaw = String.join(",", tags);
+    }
+
+    public String getTagsRaw() {
+        return tagsRaw;
+    }
+
+    public void setTagsRaw(String tagsRaw) {
+        this.tagsRaw = tagsRaw;
+    }
+
+    public List<TaskAttachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<TaskAttachment> attachments) {
+        this.attachments = attachments == null ? new ArrayList<>() : attachments;
     }
 
     @Override
