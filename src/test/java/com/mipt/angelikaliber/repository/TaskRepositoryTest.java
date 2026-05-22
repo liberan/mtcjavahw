@@ -3,6 +3,7 @@ package com.mipt.angelikaliber.repository;
 import com.mipt.angelikaliber.model.Priority;
 import com.mipt.angelikaliber.model.Task;
 import com.mipt.angelikaliber.model.TaskAttachment;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -28,6 +29,12 @@ class TaskRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
+
+    @BeforeEach
+    void cleanDb() {
+        attachmentRepository.deleteAll();
+        taskRepository.deleteAll();
+    }
 
     @Test
     void saveAndFindById() {
