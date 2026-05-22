@@ -1,6 +1,7 @@
 package com.mipt.angelikaliber.exception;
 
 import com.mipt.angelikaliber.dto.ErrorResponse;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.Arrays;
@@ -101,6 +103,29 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegal(IllegalArgumentException ex,
                                                        HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(ExternalApiException.class)
+    public ResponseEntity<ErrorResponse> handleExternal(ExternalApiException ex,
+                                                        HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_GATEWAY;
+        if (ex.getStatus() == 404) {
+            status = HttpStatus.NOT_FOUND;
+        }
+        return build(status, ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(RequestNotPermitted.class)
+    public ResponseEntity<ErrorResponse> handleRateLimit(RequestNotPermitted ex,
+                                                         HttpServletRequest request) {
+        return build(HttpStatus.TOO_MANY_REQUESTS, "Too many requests", request, null);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException ex,
+                                                              HttpServletRequest request) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+        return build(status, ex.getReason() != null ? ex.getReason() : status.getReasonPhrase(), request, null);
     }
 
     @ExceptionHandler(Exception.class)

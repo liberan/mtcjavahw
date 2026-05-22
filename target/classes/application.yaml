@@ -19,9 +19,53 @@ app:
   version: 0.0.1-SNAPSHOT
   api-version: 2.0.0
   upload-dir: uploads
+  security:
+    pepper: "static-pepper-change-me"
+  jwt:
+    secret: "change-me-change-me-change-me-change-me-please-32+chars"
+    issuer: "angelikaliber"
+    expiration-ms: 3600000
+  external:
+    base-url: "http://localhost:8080/external/v1"
+    user-agent: "angelikaliber-gateway/1.0"
+    connect-timeout-ms: 1000
+    read-timeout-ms: 2000
 
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  ratelimiter:
+    instances:
+      externalApi:
+        limitForPeriod: 5
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+  circuitbreaker:
+    instances:
+      externalApi:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        recordExceptions:
+          - com.mipt.angelikaliber.exception.ExternalApiException
+          - org.springframework.web.client.ResourceAccessException
+          - java.io.IOException
+        ignoreExceptions:
+          - com.mipt.angelikaliber.exception.TaskNotFoundException
