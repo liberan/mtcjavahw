@@ -1,19 +1,30 @@
 package com.mipt.angelikaliber.repository;
 
+import com.mipt.angelikaliber.model.Priority;
 import com.mipt.angelikaliber.model.Task;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
-public interface TaskRepository {
+@Repository
+public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    Task create(Task task);
+    List<Task> findByCompletedAndPriority(boolean completed, Priority priority);
 
-    List<Task> read();
+    List<Task> findByCompleted(boolean completed);
 
-    Optional<Task> read(Long id);
+    @Query("select t from Task t where t.dueDate between :from and :to")
+    List<Task> findTasksDueWithin(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
-    Optional<Task> update(Long id, Task task);
+    @EntityGraph(attributePaths = "attachments")
+    @Query("select distinct t from Task t")
+    List<Task> findAllWithAttachments();
 
-    boolean delete(Long id);
+    @Query("select t from Task t left join fetch t.attachments where t.id = :id")
+    Task findByIdWithAttachments(@Param("id") Long id);
 }

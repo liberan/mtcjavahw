@@ -1,22 +1,15 @@
 package com.mipt.angelikaliber.controller;
 
-import com.mipt.angelikaliber.repository.TaskRepository;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.MOCK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -25,26 +18,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @SpringBootTest(webEnvironment = MOCK)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 class PreferencesControllerTest {
 
     @Autowired
     private org.springframework.web.context.WebApplicationContext context;
 
-    @MockitoBean(name = "inMemoryTaskRepository")
-    private TaskRepository taskRepository;
-
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        Mockito.reset(taskRepository);
-        when(taskRepository.read()).thenReturn(List.of());
-        when(taskRepository.create(any())).thenAnswer(inv -> {
-            com.mipt.angelikaliber.model.Task t = inv.getArgument(0);
-            t.setId(1L);
-            return t;
-        });
         mockMvc = webAppContextSetup(context).build();
     }
 

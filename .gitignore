@@ -1,40 +1,91 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+  # --- Системные файлы / OS ---
+  .DS_Store
+  Thumbs.db
+  ehthumbs.db
+  Icon?
+  Desktop.ini
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+  # --- IntelliJ IDEA ---
+  .idea/
+  *.iml
+  *.iws
+  *.ipr
+  out/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+  # --- Eclipse / STS ---
+  .apt_generated
+  .classpath
+  .factorypath
+  .project
+  .settings/
+  .springBeans
+  .sts4-cache
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+  # --- NetBeans ---
+  /nbproject/private/
+  /nbbuild/
+  /dist/
+  /nbdist/
+  /.nb-gradle/
 
-### VS Code ###
-.vscode/
+  # --- VS Code ---
+  .vscode/
+  
+  # --- Java ---
+  *.class
+  *.log
+  *.jar
+  *.war
+  *.nar
+  *.ear
+  *.zip
+  *.tar.gz
+  *.rar
 
-### Mac ###
-.DS_Store
+  # --- Build directories ---
+  /target/
+  /build/
+  /bin/
+  /out/
+  !**/src/main/**/target/
+  !**/src/test/**/target/
+  !**/src/main/**/build/
+  !**/src/test/**/build/
 
-### Misc ###
-task-service-stats.log
-uploads/
+  # --- Maven ---
+  target/
+  pom.xml.tag
+  pom.xml.releaseBackup
+  pom.xml.versionsBackup
+  pom.xml.next
+  release.properties
+  !.mvn/wrapper/maven-wrapper.jar
+
+  # --- Gradle ---
+  .gradle/
+  gradle-app.setting
+  gradle-app.properties
+  !gradle-wrapper.jar
+  !gradlew
+  !gradlew.bat
+
+  # --- Logs и временные файлы ---
+  *.tmp
+  *.bak
+  *.swp
+  *.swo
+  *.orig
+
+  # --- Tests и покрытия ---
+  *.ser
+  *.ec
+  *.exec
+  *.coverage
+  *.coverage.xml
+  test-output/
+  surefire-reports/
+  
+  # --- Misc ---
+  HELP.md
+  task-service-stats.log
+  uploads/

@@ -1,15 +1,42 @@
 package com.mipt.angelikaliber.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "task_attachments")
 public class TaskAttachment {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long taskId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_id", nullable = false)
+    private Task task;
+
+    @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
+
+    @Column(name = "stored_file_name", nullable = false, length = 255)
     private String storedFileName;
+
+    @Column(name = "content_type", length = 255)
     private String contentType;
+
+    @Column(name = "size", nullable = false)
     private long size;
+
+    @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
 
     public TaskAttachment() {
@@ -23,12 +50,16 @@ public class TaskAttachment {
         this.id = id;
     }
 
-    public Long getTaskId() {
-        return taskId;
+    public Task getTask() {
+        return task;
     }
 
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
+    public void setTask(Task task) {
+        this.task = task;
+    }
+
+    public Long getTaskId() {
+        return task == null ? null : task.getId();
     }
 
     public String getFileName() {

@@ -1,5 +1,6 @@
 package com.mipt.angelikaliber.controller;
 
+import com.mipt.angelikaliber.dto.PriorityCountDto;
 import com.mipt.angelikaliber.dto.TaskCreateDto;
 import com.mipt.angelikaliber.dto.TaskResponseDto;
 import com.mipt.angelikaliber.dto.TaskUpdateDto;
@@ -8,7 +9,7 @@ import com.mipt.angelikaliber.model.Task;
 import com.mipt.angelikaliber.service.PrototypeScopedBean;
 import com.mipt.angelikaliber.service.RequestScopedBean;
 import com.mipt.angelikaliber.service.TaskService;
-import com.mipt.angelikaliber.service.TaskStatisticsService;
+import com.mipt.angelikaliber.service.TaskStatisticsJdbcService;
 import com.mipt.angelikaliber.validation.OnCreate;
 import com.mipt.angelikaliber.validation.OnUpdate;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,13 +42,13 @@ public class TaskController {
 
     private final TaskService taskService;
     private final TaskMapper taskMapper;
-    private final TaskStatisticsService statisticsService;
+    private final TaskStatisticsJdbcService statisticsService;
     private final ObjectProvider<RequestScopedBean> requestScopedBeanProvider;
     private final ObjectProvider<PrototypeScopedBean> prototypeScopedBeanProvider;
 
     public TaskController(TaskService taskService,
                           TaskMapper taskMapper,
-                          TaskStatisticsService statisticsService,
+                          TaskStatisticsJdbcService statisticsService,
                           ObjectProvider<RequestScopedBean> requestScopedBeanProvider,
                           ObjectProvider<PrototypeScopedBean> prototypeScopedBeanProvider) {
         this.taskService = taskService;
@@ -80,7 +81,11 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<TaskResponseDto> create(
             @Validated(OnCreate.class) @RequestBody TaskCreateDto dto) {
-        Task created = taskService.create(taskMapper.toEntity(dto));
+        Task entity = taskMapper.toEntity(dto);
+        if (dto.getTags() != null) {
+            entity.setTags(dto.getTags());
+        }
+        Task created = taskService.create(entity);
         return ResponseEntity.status(201).body(taskMapper.toResponseDto(created));
     }
 
@@ -93,6 +98,9 @@ public class TaskController {
         if (dto.getCompleted() != null) {
             patched.setCompleted(dto.getCompleted());
         }
+        if (dto.getTags() != null) {
+            patched.setTags(dto.getTags());
+        }
         Task updated = taskService.update(id, patched);
         return ResponseEntity.ok(taskMapper.toResponseDto(updated));
     }
@@ -104,20 +112,39 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Mark multiple tasks as completed")
+    @PostMapping("/bulk-complete")
+    public ResponseEntity<List<TaskResponseDto>> bulkComplete(@RequestBody List<Long> ids) {
+        List<TaskResponseDto> body = taskService.bulkCompleteTasks(ids).stream()
+                .map(taskMapper::toResponseDto).toList();
+        return ResponseEntity.ok(body);
+    }
+
+    @Operation(summary = "List tasks due within 7 days")
+    @GetMapping("/due-soon")
+    public ResponseEntity<List<TaskResponseDto>> dueSoon() {
+        List<TaskResponseDto> body = taskService.findTasksDueWithinWeek().stream()
+                .map(taskMapper::toResponseDto).toList();
+        return ResponseEntity.ok(body);
+    }
+
+    @Operation(summary = "Stats: tasks count by priority")
+    @GetMapping("/stats/by-priority")
+    public ResponseEntity<List<PriorityCountDto>> countsByPriority() {
+        return ResponseEntity.ok(statisticsService.getTasksCountByPriority());
+    }
+
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> stats() {
         RequestScopedBean requestBean = requestScopedBeanProvider.getObject();
         PrototypeScopedBean prototypeFirst = prototypeScopedBeanProvider.getObject();
         PrototypeScopedBean prototypeSecond = prototypeScopedBeanProvider.getObject();
-        LOGGER.debug("stats: request-id={} primary-source={}",
-                requestBean.getRequestId(), statisticsService.describePrimarySource());
+        LOGGER.debug("stats: request-id={}", requestBean.getRequestId());
         Map<String, Object> body = Map.of(
                 "appName", taskService.getAppName(),
                 "appVersion", taskService.getAppVersion(),
-                "cacheSize", taskService.cacheSize(),
-                "countsBySource", statisticsService.countsBySource(),
-                "primarySource", statisticsService.describePrimarySource(),
-                "stubSource", statisticsService.describeStubSource(),
+                "totalTasks", taskService.findAll().size(),
+                "countsByPriority", statisticsService.getTasksCountByPriority(),
                 "requestId", requestBean.getRequestId(),
                 "requestStartedAt", requestBean.getStartedAt().toString(),
                 "prototypeIds", List.of(prototypeFirst.getTaskId(), prototypeSecond.getTaskId())

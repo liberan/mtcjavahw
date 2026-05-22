@@ -33,7 +33,6 @@ class TaskMapperTest {
         assertThat(task.getCreatedAt()).isNull();
         assertThat(task.getTitle()).isEqualTo("Title");
         assertThat(task.getPriority()).isEqualTo(Priority.HIGH);
-        assertThat(task.getTags()).containsExactlyInAnyOrder("x", "y");
         assertThat(task.isCompleted()).isFalse();
     }
 

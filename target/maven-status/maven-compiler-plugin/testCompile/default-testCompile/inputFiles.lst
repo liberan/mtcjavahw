@@ -1,2 +1,9 @@
-/Users/aliberscomp/IdeaProjects/mtcjavahw/src/test/java/com/mipt/angelikaliber/AngelikaliberApplicationTests.java
-/Users/aliberscomp/IdeaProjects/mtcjavahw/src/test/java/com/mipt/angelikaliber/controller/TaskControllerTest.java
+/Users/aliberscomp/javahw2/src/test/java/com/mipt/angelikaliber/AngelikaliberApplicationTests.java
+/Users/aliberscomp/javahw2/src/test/java/com/mipt/angelikaliber/controller/AttachmentControllerTest.java
+/Users/aliberscomp/javahw2/src/test/java/com/mipt/angelikaliber/controller/FavoritesControllerTest.java
+/Users/aliberscomp/javahw2/src/test/java/com/mipt/angelikaliber/controller/PreferencesControllerTest.java
+/Users/aliberscomp/javahw2/src/test/java/com/mipt/angelikaliber/controller/TaskControllerTest.java
+/Users/aliberscomp/javahw2/src/test/java/com/mipt/angelikaliber/mapper/TaskMapperTest.java
+/Users/aliberscomp/javahw2/src/test/java/com/mipt/angelikaliber/repository/TaskRepositoryTest.java
+/Users/aliberscomp/javahw2/src/test/java/com/mipt/angelikaliber/service/TaskServiceTransactionTest.java
+/Users/aliberscomp/javahw2/src/test/java/com/mipt/angelikaliber/service/TaskStatisticsJdbcServiceTest.java
